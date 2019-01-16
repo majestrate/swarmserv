@@ -9,7 +9,7 @@ endif
 
 EXE = swarmserver
 
-TAGS ?=
+TAGS ?= release
 
 all: clean build
 
@@ -17,7 +17,7 @@ build: $(EXE)
 
 
 $(EXE): 
-	GOPATH=$(REPO) $(GO) build -a -ldflags "-X swarmserv/version.Git=$(GIT_VERSION)" -tags='$(TAGS)' -o $(EXE)
+	GOPATH=$(REPO) $(GO) build -v -ldflags "-X swarmserv/version.Git=$(GIT_VERSION)" -tags='$(TAGS)' -o $(EXE)
 
 test:
 	GOPATH=$(REPO) $(GO) test swarmserv/...
