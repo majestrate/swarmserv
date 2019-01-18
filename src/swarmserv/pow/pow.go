@@ -4,20 +4,23 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/hex"
 	"errors"
 	"io"
 	"strconv"
+	"swarmserv/model"
+	"time"
 )
 
 //ErrBadPoW means the proof of work is not suffiecent
 var ErrBadPoW = errors.New("bad PoW")
 
 // CheckPOW checks if a proof of work is valid for a given nonce, timestamp, ttl, recipiant and data
-// returns the hash of the message and nil on success
+// returns the message as verified and parsed
 // returns nil and error on fail
-func CheckPOW(nonce, timestamp, ttl, recipiant string, body io.Reader) ([]byte, error) {
+func CheckPOW(nonce, timestamp, ttl, recipiant string, body io.Reader) (*model.Message, error) {
 
-	nonce_bytes, err := base64.URLEncoding.DecodeString(nonce)
+	nonce_bytes, err := base64.StdEncoding.DecodeString(nonce)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +65,11 @@ func CheckPOW(nonce, timestamp, ttl, recipiant string, body io.Reader) ([]byte, 
 	hash := h.Sum(inner)
 
 	if binary.BigEndian.Uint64(hash[:]) < target {
-		return hashresult, nil
+
+		return &model.Message{
+			Hash:                hex.EncodeToString(hashresult),
+			ExpirationTimestamp: uint64(time.Now().Add(time.Duration(ttl_int) * time.Second).Unix()),
+		}, nil
 	}
 	return nil, ErrBadPoW
 }

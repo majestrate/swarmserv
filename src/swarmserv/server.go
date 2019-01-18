@@ -1,13 +1,13 @@
 package swarmserv
 
 import (
-	"crypto/rand"
-	"encoding/base32"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"swarmserv/model"
 	"swarmserv/pow"
 	"swarmserv/storage"
 	"time"
@@ -27,6 +27,13 @@ func (s *Server) Init() error {
 	return s.store.Init()
 }
 
+func (s *Server) Tick() {
+	err := s.store.Expire()
+	if err != nil {
+		fmt.Printf("!!! [%s] error during expiration: %s\n", time.Now().String(), err.Error())
+	}
+}
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
@@ -40,7 +47,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) plain(w http.ResponseWriter, code int, msg string) {
-	fmt.Println(msg)
+	fmt.Printf("%d %s\n", code, msg)
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", len(msg)))
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(code)
@@ -48,9 +55,7 @@ func (s *Server) plain(w http.ResponseWriter, code int, msg string) {
 }
 
 func (s *Server) handleStore(w http.ResponseWriter, r *http.Request) {
-	var buf [5]byte
-	rand.Read(buf[:])
-	tmpfilename := fmt.Sprintf("tmp-%d-%s", time.Now().UnixNano(), base32.StdEncoding.EncodeToString(buf[:]))
+	tmpfilename := s.store.Mktemp()
 	defer r.Body.Close()
 	nonce := r.Header.Get("X-Loki-pow-nonce")
 	ttl := r.Header.Get("X-Loki-ttl")
@@ -80,6 +85,7 @@ func (s *Server) handleStore(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"status": "ok",
 		})
+		fmt.Printf("[%s] stored message\n", time.Now().String())
 	} else {
 		os.Remove(tmpfilename)
 		if err == nil {
@@ -92,4 +98,27 @@ func (s *Server) handleStore(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleRetrieve(w http.ResponseWriter, r *http.Request) {
 
+	var msgs []model.Message
+
+	lastHash, _ := hex.DecodeString(r.Header.Get("X-Loki-last-hash"))
+	owner := r.Header.Get("X-Loki-recipient")
+	lastExpire := uint64(0)
+
+	err := s.store.IterSinceHashFor(owner, lastHash, func(m model.Message) error {
+		msgs = append(msgs, m)
+		if lastExpire < m.ExpirationTimestamp {
+			lastExpire = m.ExpirationTimestamp
+			lastHash, _ = hex.DecodeString(m.Hash)
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Printf("[%s] error retrieving messages: %s\n", time.Now().String(), err.Error())
+		s.plain(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"messages": msgs,
+		"lastHash": hex.EncodeToString(lastHash),
+	})
 }

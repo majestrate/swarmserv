@@ -19,9 +19,15 @@ func Main() {
 	serv := NewServer()
 	err := serv.Init()
 	if err != nil {
-		fmt.Printf("error: %s", err.Error())
+		fmt.Printf("error during server init: %s", err.Error())
 		return
 	}
+	go func() {
+		for {
+			serv.Tick()
+			time.Sleep(time.Second * 10)
+		}
+	}()
 	for {
 		addr := net.JoinHostPort(os.Args[1], os.Args[2])
 		err = http.ListenAndServe(addr, serv)
