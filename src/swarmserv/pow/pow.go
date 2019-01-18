@@ -65,10 +65,11 @@ func CheckPOW(nonce, timestamp, ttl, recipiant string, body io.Reader) (*model.M
 	hash := h.Sum(inner)
 
 	if binary.BigEndian.Uint64(hash[:]) < target {
-
+		t := time.Duration(ttl_int) * time.Second
+		expiresAt := time.Now().Add(t)
 		return &model.Message{
 			Hash:                hex.EncodeToString(hashresult),
-			ExpirationTimestamp: uint64(time.Now().Add(time.Duration(ttl_int) * time.Second).Unix()),
+			ExpirationTimestamp: uint64(expiresAt.Unix()),
 		}, nil
 	}
 	return nil, ErrBadPoW

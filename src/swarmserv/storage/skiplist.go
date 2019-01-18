@@ -170,7 +170,7 @@ func (s *fsSkiplistStore) withIndexLock(fn func() error) error {
 			continue
 		}
 		if os.IsNotExist(e) {
-			f, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0700)
+			f, err := os.OpenFile(fpath, os.O_CREATE|os.O_WRONLY, 0600)
 			if err != nil {
 				return err
 			}
@@ -183,6 +183,8 @@ func (s *fsSkiplistStore) withIndexLock(fn func() error) error {
 			f.Close()
 			os.Remove(fpath)
 			return err
+		} else {
+			fmt.Printf("error: %s\n", e.Error())
 		}
 	}
 }
@@ -239,7 +241,7 @@ func (s *fsSkiplistStore) Expire() error {
 					// sanity check
 					if strings.HasPrefix(parts[0], s.root) && strings.Index(parts[0], "..") == -1 {
 						t, err := strconv.ParseUint(parts[1], 10, 64)
-						if err == nil && t >= now {
+						if err == nil && now >= t {
 							// expire old file and discard index entry
 							fmt.Printf("expire %s\n", parts[0])
 							e := os.Remove(parts[0])
