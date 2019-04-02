@@ -4,7 +4,7 @@ super duper speedy af loki messanger storage server written in go
 
 to build:
 
-    $ make
+    $ go get -u -v github.com/majestrate/swarmserv
 
 to run:
 

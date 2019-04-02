@@ -2,10 +2,10 @@ package swarmserv
 
 import (
 	"fmt"
+	"github.com/majestrate/swarmserv/swarmserv/version"
 	"net"
 	"net/http"
 	"os"
-	"swarmserv/version"
 	"time"
 )
 
@@ -16,7 +16,7 @@ func Main() {
 		return
 	}
 	fmt.Println(version.Version)
-	serv := NewServer()
+	serv := NewServer("storage")
 	err := serv.Init()
 	if err != nil {
 		fmt.Printf("error during server init: %s", err.Error())

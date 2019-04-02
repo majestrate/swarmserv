@@ -7,12 +7,12 @@ import (
 	"encoding/base32"
 	"encoding/hex"
 	"fmt"
+	"github.com/majestrate/swarmserv/swarmserv/model"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"swarmserv/model"
 	"time"
 )
 

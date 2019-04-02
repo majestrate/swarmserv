@@ -6,9 +6,9 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
+	"github.com/majestrate/swarmserv/swarmserv/model"
 	"io"
 	"strconv"
-	"swarmserv/model"
 	"time"
 )
 

@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/majestrate/swarmserv/swarmserv/model"
+	"github.com/majestrate/swarmserv/swarmserv/pow"
+	"github.com/majestrate/swarmserv/swarmserv/storage"
 	"io"
 	"net/http"
 	"os"
-	"swarmserv/model"
-	"swarmserv/pow"
-	"swarmserv/storage"
 	"time"
 )
 
@@ -17,9 +17,9 @@ type Server struct {
 	store storage.Store
 }
 
-func NewServer() *Server {
+func NewServer(storedir string) *Server {
 	return &Server{
-		store: storage.NewSkiplistStore("."),
+		store: storage.NewSkiplistStore(storedir),
 	}
 }
 
