@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/majestrate/swarmserv/swarmserv/model"
+	"github.com/majestrate/swarmserv/lib/model"
 	"path/filepath"
 	"time"
 )

@@ -2,7 +2,7 @@ package swarmserv
 
 import (
 	"fmt"
-	"github.com/majestrate/swarmserv/swarmserv/version"
+	"github.com/majestrate/swarmserv/lib/version"
 	"net"
 	"net/http"
 	"os"
@@ -28,13 +28,16 @@ func Main() {
 			time.Sleep(time.Second * 10)
 		}
 	}()
+
+	server := &http.Server{
+		Handler: serv,
+		Addr:    net.JoinHostPort(os.Args[1], os.Args[2]),
+	}
 	for {
-		addr := net.JoinHostPort(os.Args[1], os.Args[2])
-		err = http.ListenAndServe(addr, serv)
+		err = server.ListenAndServe()
 		if err != nil {
 			fmt.Printf("ListenAndServe: %s\n", err.Error())
 			time.Sleep(time.Second)
 		}
 	}
-
 }

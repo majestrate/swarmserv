@@ -7,7 +7,7 @@ import (
 	"encoding/base32"
 	"encoding/hex"
 	"fmt"
-	"github.com/majestrate/swarmserv/swarmserv/model"
+	"github.com/majestrate/swarmserv/lib/model"
 	"io"
 	"os"
 	"path/filepath"
