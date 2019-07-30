@@ -1,6 +1,8 @@
 REPO := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 GIT_VERSION ?= $(shell test -e .git && ( echo -n "-" && git rev-parse --short HEAD ) || true)
 
+NS_ROOT := github.com/majestrate
+
 ifdef GOROOT
 	GO = $(GOROOT)/bin/go
 else
@@ -15,15 +17,14 @@ all: clean build
 
 build: $(EXE)
 
-
 $(EXE): 
-	GOPATH=$(REPO) $(GO) build -v -ldflags "-X swarmserv/version.Git=$(GIT_VERSION)" -tags='$(TAGS)' -o $(EXE)
+	$(GO) build -v -ldflags "-X $(NS_ROOT)/swarmserv/version.Git=$(GIT_VERSION)" -tags='$(TAGS)' -o $(EXE)
 
 test:
-	GOPATH=$(REPO) $(GO) test swarmserv/...
+	$(GO) test $(NS_ROOT)/swarmserv/...
 
 go-clean:
-	GOPATH=$(REPO) $(GO) clean
+	$(GO) clean
 
 clean: go-clean
 	$(RM) $(EXE)
