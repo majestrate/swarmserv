@@ -2,11 +2,12 @@ package swarmserv
 
 import (
 	"fmt"
-	"github.com/majestrate/swarmserv/swarmserv/version"
 	"net"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/majestrate/swarmserv/swarmserv/version"
 )
 
 // Main is the main entry point for swarmserv daemon
@@ -33,7 +34,7 @@ func Main() {
 		Addr:    net.JoinHostPort(os.Args[1], os.Args[2]),
 	}
 	for {
-		err = server.Serve()
+		err = server.ListenAndServe()
 		if err != nil {
 			fmt.Printf("ListenAndServe: %s\n", err.Error())
 			time.Sleep(time.Second)
