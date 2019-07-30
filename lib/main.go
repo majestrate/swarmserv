@@ -59,7 +59,7 @@ func Main() {
 	}
 	pk, err := encode.ZBase32Encoding.DecodeString(strings.TrimSuffix(snodeaddr, ".snode"))
 	if err != nil {
-		fmt.Printf("invalid snode address detected: %s\n", snodeaddr)
+		fmt.Printf("invalid snode address detected: %s\n", err.Error())
 		return
 	}
 	if !cryptoctx.EnsurePubKeyEqualTo(pk) {

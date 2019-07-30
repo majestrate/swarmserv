@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/agl/ed25519/edwards25519"
 	"golang.org/x/crypto/curve25519"
 )
 
@@ -24,7 +25,9 @@ var ErrInvalidSeed = errors.New("invalid seed")
 // EnsurePubKeyEqualTo returns true if the public key for our seed is equal to pk
 func (cc *CryptoContext) EnsurePubKeyEqualTo(pk []byte) bool {
 	var pub [32]byte
-	curve25519.ScalarBaseMult(&pub, &cc.privkey)
+	var h edwards25519.ExtendedGroupElement
+	edwards25519.GeScalarMultBase(&h, &cc.privkey)
+	h.ToBytes(&pub)
 	return subtle.ConstantTimeCompare(pk, pub[:]) == 1
 }
 
