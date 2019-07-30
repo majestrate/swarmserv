@@ -4,21 +4,31 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/majestrate/swarmserv/lib/network"
 	"github.com/majestrate/swarmserv/lib/version"
 )
 
+const storageport = "8080"
+
 // Main is the main entry point for swarmserv daemon
 func Main() {
-	if len(os.Args) != 3 {
-		fmt.Printf("usage: %s ip port\n", os.Args[0])
-		return
+	// TODO: override me on runtime somehow
+	dnshost := "127.3.2.1"
+	dnsport := "53"
+
+	netctx := network.CreateNetContext(dnshost, dnsport)
+
+	lokiaddr, err := netctx.LookupOurAddress()
+
+	if err != nil {
+		fmt.Printf("failed to lookup loki address: %s\n", err.Error())
 	}
+
 	fmt.Println(version.Version)
 	serv := NewServer("storage")
-	err := serv.Init()
+	err = serv.Init()
 	if err != nil {
 		fmt.Printf("error during server init: %s", err.Error())
 		return
@@ -31,7 +41,7 @@ func Main() {
 	}()
 	server := &http.Server{
 		Handler: serv,
-		Addr:    net.JoinHostPort(os.Args[1], os.Args[2]),
+		Addr:    net.JoinHostPort(lokiaddr, storageport),
 	}
 	for {
 		err = server.ListenAndServe()
