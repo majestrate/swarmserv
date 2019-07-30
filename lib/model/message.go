@@ -5,3 +5,8 @@ type Message struct {
 	ExpirationTimestamp uint64 `json:"expiration"`
 	Data                string `json:"data"`
 }
+
+type RetrieveRequest struct {
+	PubKey   string `json:"pubKey"`
+	LastHash string `json:"lastHash"`
+}

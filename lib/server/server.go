@@ -4,13 +4,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/majestrate/swarmserv/lib/model"
-	"github.com/majestrate/swarmserv/lib/pow"
-	"github.com/majestrate/swarmserv/lib/storage"
 	"io"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/majestrate/swarmserv/lib/model"
+	"github.com/majestrate/swarmserv/lib/pow"
+	"github.com/majestrate/swarmserv/lib/storage"
 )
 
 type Server struct {
@@ -41,8 +42,17 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.handleStore(w, r)
 	case "/retrieve":
 		s.handleRetrieve(w, r)
+	case "/v1/storage_rpc":
+		s.handleV1StoreRPC(w, r)
 	default:
 		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+func (s *Server) handleV1StoreRPC(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		s.plain(w, http.StatusNotFound, "not found")
+		return
 	}
 }
 
