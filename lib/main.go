@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/majestrate/swarmserv/swarmserv/version"
+	"github.com/majestrate/swarmserv/lib/version"
 )
 
 // Main is the main entry point for swarmserv daemon
@@ -40,5 +40,4 @@ func Main() {
 			time.Sleep(time.Second)
 		}
 	}
-
 }
